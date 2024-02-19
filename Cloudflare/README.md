@@ -45,3 +45,94 @@ To get started with Cloudflare Workers, follow these steps:
 8. **Monitor and Debug**: Monitor the performance of your Cloudflare Worker using Cloudflare's analytics dashboard. Use logging and debugging techniques to troubleshoot any issues that arise.
 
 By following these steps, you can quickly get started with Cloudflare Workers and leverage the power of serverless computing at the edge of the network. Happy coding!
+
+#### Mini Project
+
+1. Went to the terminal and ran the following cmd `npm create cloudflare -- [name-of-the-project]`.
+2. This cmd creates a new project with the name provided and sets up the necessary files and configurations.
+3. Understanding the created files and configurations:
+
+   ```
+    project-strucutre
+    name/
+    |__ wrangler.toml
+    |__ src/
+        |__ index.ts
+   ```
+
+   `wrangler.toml`: Cloudflare config file, contains the account id, zone id, and other configurations.
+   `src/index.ts`: The main file where the worker code is written. quite similar to a node server file/Express server file.
+
+4. Syntatical Changes:
+   Does cloudflare workers initiate some new syntax/provide some new objects classes?
+
+   - Yes routing seems to have downgardede a lot from the genral express routing.
+
+   Express Routing:
+
+   ```javascript
+    app.get('/', (req, res) => {
+       res.send('Hello World');
+    });
+    app.get('/login', (req, res) => {
+       res.send('Login Page');
+    });
+    app.get('/signup', (req, res) => {
+       res.send('Signup Page');
+     });
+   ...
+   ```
+
+   The stupid way to do it on cloudflare workers:
+
+   ```javascript
+   export default {
+     async fetch(
+       request: Request,
+       env: Env,
+       ctx: ExecutionContext
+     ): Promise<Response> {
+       console.log(request.body);
+       console.log(request.headers);
+
+       if (request.method === "GET") {
+         return Response.json({
+           message: "you sent a get request",
+         });
+       } else {
+         return Response.json({
+           message: "you did not send a get request",
+         });
+       }
+     },
+   };
+   ```
+
+   - The `fetch` function is the main function that handles all the requests.
+
+5. Better Solution to ugly routing:
+
+   - Use certain libraries like Express or Oak to handle the routing and other functionalities.
+   - Sadly the cloudflare workers do not support the use of these libraries.
+   - hence use others like `Hono` etc.
+
+6. Hono is very intuitive once you get the hang of it. It is a very simple and easy to use library that can be used to handle the routing and other functionalities.
+
+   - Hono stores all the req res stuff in a single obj (called `context` written as `c` genrally).
+
+   ```Typescript
+   import {Hono} from 'hono';
+
+   const app = Hono();
+
+   app.get('/:page', async (c) => {
+     console.log(new Date().toLocaleTimeString());
+     console.log(c.req.query('page'));
+     console.log(c.req.param('page'));
+     console.log(typeof c.req.query('page'));
+     return c.text('Hello Hono!');
+   });
+   ```
+
+   - Listing the various methods that can be used with the `context` obj.
+     [Link to Docs](https://hono.dev/api/context)
